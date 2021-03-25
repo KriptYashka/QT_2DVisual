@@ -9,6 +9,8 @@
 using namespace std;
 
 void calc_metric(vector<double> arr, int col_metric, double* min, double* max, double* avg);
+vector<vector<double>> read_csv_file(string path);
+
 
 
 #endif // TECHNICAL_H

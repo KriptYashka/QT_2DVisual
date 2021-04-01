@@ -2,8 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QFile>
-#include <QFileDialog>
+#include <QStandardItemModel>
+#include <fstream>
+#include <QShortcut>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -16,11 +17,18 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    QStandardItemModel *csvModel;
 
 private slots:
+    void on_btn_load_clicked();
     void on_btn_loadfile_clicked();
+    void on_btn_metric_clicked();
+    void closeApp();
 
 private:
     Ui::MainWindow *ui;
+    QShortcut *keyEnter;
+    QShortcut *keyEsc;
+
 };
 #endif // MAINWINDOW_H

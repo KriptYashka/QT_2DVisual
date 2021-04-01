@@ -1,16 +1,12 @@
 #ifndef TECHNICAL_H
 #define TECHNICAL_H
-
-#include <stdio.h>
-#include <vector>
-#include <string>
-
-#include "mainwindow.h" // удалить, как только найду библиотеку под sort
+#include "mainwindow.h"
 using namespace std;
 
-void calc_metric(vector<double> arr, int col_metric, double* min, double* max, double* avg);
-vector<vector<double>> read_csv_file(string path);
-
-
+void calc_metric(std::vector<double> arr, int col_metric, double* min, double* max, double* avg);
+bool is_normal_metric(string text);
+bool is_digit(char c);
+bool is_csv_file(string path);
+vector<vector<string>> read_csv_file(string path);
 
 #endif // TECHNICAL_H

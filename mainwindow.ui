@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>931</width>
-    <height>573</height>
+    <width>1020</width>
+    <height>957</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -77,6 +77,9 @@
       <height>24</height>
      </rect>
     </property>
+    <property name="text">
+     <string>Altai Krai</string>
+    </property>
    </widget>
    <widget class="QLabel" name="label_region">
     <property name="geometry">
@@ -113,12 +116,15 @@
       <height>24</height>
      </rect>
     </property>
+    <property name="text">
+     <string>4</string>
+    </property>
    </widget>
    <widget class="QLabel" name="label_result">
     <property name="geometry">
      <rect>
       <x>40</x>
-      <y>310</y>
+      <y>290</y>
       <width>211</width>
       <height>111</height>
      </rect>
@@ -142,7 +148,7 @@
       <x>280</x>
       <y>120</y>
       <width>601</width>
-      <height>381</height>
+      <height>281</height>
      </rect>
     </property>
    </widget>
@@ -159,14 +165,27 @@
      <string>Загрузить файл</string>
     </property>
    </widget>
+   <widget class="QLabel" name="graphic">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>410</y>
+      <width>961</width>
+      <height>491</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>График</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>931</width>
-     <height>25</height>
+     <width>1020</width>
+     <height>20</height>
     </rect>
    </property>
   </widget>

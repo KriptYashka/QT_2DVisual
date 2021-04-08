@@ -30,6 +30,7 @@ MainWindow::~MainWindow(){
 /* Глобальные переменные */
 QStandardItemModel *general_model = new QStandardItemModel;
 QStringList headers;
+vector<vector<string>> csv_read;
 
 void MainWindow::closeApp(){
     QApplication::exit();
@@ -59,7 +60,7 @@ void model_cpy(QStandardItemModel* from, QStandardItemModel* to){
 void MainWindow::on_btn_loadfile_clicked(){
     /* Загрузка файла */
     QString filePath = QFileDialog::getOpenFileName(this, tr("Open file"));
-    vector<vector<string>> csv_read = read_csv_file(filePath.toStdString());
+    csv_read = read_csv_file(filePath.toStdString());
 
     if (csv_read.size() == 0){
         ui->label_title->setText("Нет таблицы");
@@ -142,12 +143,15 @@ void MainWindow::on_btn_metric_clicked(){
 
     ui->table_metric->setModel(general_model);
 
-    std::vector<double> arr;
+    vector<double> arr;
+    vector<int> years;
     // Просчет метрик
     for (int row = 0; row < general_model->rowCount(); ++row){
         QString str = general_model->item(row, col_metric)->text();
-        if (is_normal_metric(str.toStdString())){
+        QString str_year = general_model->item(row, 0)->text();
+        if (is_normal_metric(str.toStdString()) && is_normal_metric(str_year.toStdString())){
             arr.push_back(general_model->item(row, col_metric)->text().toDouble());
+            years.push_back(general_model->item(row, 0)->text().toInt());
         }
     }
 
@@ -156,90 +160,95 @@ void MainWindow::on_btn_metric_clicked(){
             +"\nМедиана: "+ QString::number(average);
     if (arr.size() == 0){
         result_text = "Нет результатов. Проверьте название региона или выбранную колонку.";
+         ui->label_result->setText(result_text);
+         return;
     }
     ui->label_result->setText(result_text);
 
-
+    QString col_name = headers.at(col_metric - 1);
+    draw_picture(years, arr, col_name, minimum, maximum, average);
 
 }
 
-QPicture MainWindow::get_picture(double min, double max, double med){
-    vector<int> year;
+
+void MainWindow::draw_picture(vector<int> years, vector<double> metric, QString metric_name, double min, double max, double med){
     double minY = min, maxX = max;
+    double minX = years.at(0), maxY = years.at(years.size()-1);
 
-           const int sizeX = 500,
-                   sizeY = 480,
-                   padding = 50,
-                   graphicYOffset = 30,
-                   graphicXOffset = 10;
+       const int sizeX = 500,
+               sizeY = 480,
+               padding = 50,
+               graphicYOffset = 30,
+               graphicXOffset = 10;
 
-           QPicture picture;
-           picture.setBoundingRect(QRect(QPoint(0, 0), QPoint(sizeX, sizeY))); //Устанавливает ограничивающий прямоугольник изображения на r (QRect &r): 1)QRect(int x, int y, int width, int height) 2)QRect(const QPoint &topLeft, const QSize &size) 3)QRect(const QPoint &topLeft, const QPoint &bottomRight)
-           QPainter painter;
+       QPicture picture;
+       picture.setBoundingRect(QRect(QPoint(0, 0), QPoint(sizeX, sizeY))); //Устанавливает ограничивающий прямоугольник изображения на r (QRect &r): 1)QRect(int x, int y, int width, int height) 2)QRect(const QPoint &topLeft, const QSize &size) 3)QRect(const QPoint &topLeft, const QPoint &bottomRight)
+       QPainter painter;
 
-           painter.begin(&picture); // paint in picture
+       painter.begin(&picture); // paint in picture
 
-           QPen dotsPen = painter.pen(); //The QPen class defines how a QPainter should draw lines and outlines of shapes.
-           dotsPen.setWidth(2); //толщина ручки
-           dotsPen.setColor(QColor(255, 0, 255)); //color
+       QPen dotsPen = painter.pen(); //The QPen class defines how a QPainter should draw lines and outlines of shapes.
+       dotsPen.setWidth(2); //толщина ручки
+       dotsPen.setColor(QColor(255, 0, 255)); //color
 
-           QPen defPen = painter.pen(); //ручка для осей
-           defPen.setWidth(2);
+       QPen defPen = painter.pen(); //ручка для осей
+       defPen.setWidth(2);
 
-           QPen horPen = painter.pen();//ручка для горизонтальных линий метрики
-           horPen.setStyle(Qt::DotLine);
+       QPen horPen = painter.pen();//ручка для горизонтальных линий метрики
+       horPen.setStyle(Qt::DotLine);
+
+       painter.setPen(defPen);
+
+       const int horYPos = sizeY - padding - graphicYOffset / 2;
+       const int verXPos = padding + graphicXOffset;
+
+       painter.drawLine(verXPos, horYPos, sizeX - padding, horYPos); // horizontal line
+       painter.drawLine(sizeX - padding, horYPos, sizeX - padding - 5, horYPos - 3); // стрелочки
+       painter.drawLine(sizeX - padding, horYPos, sizeX - padding - 5, horYPos + 3);
+
+       painter.drawLine(verXPos, horYPos, verXPos, padding); // vertical line
+       painter.drawLine(verXPos, padding, verXPos - 3, padding + 5); // стрелочки
+       painter.drawLine(verXPos, padding, verXPos + 3, padding + 5);
+
+       int size = years.size();
+       double diffX = maxY - minX, // года
+               diffY = maxX - minY;
+
+       double posX, posY;
+       for(int i = 0; i < size; i++)
+       {
+           posX = verXPos + 5 + ((years[i] - minX) / diffX) * (sizeX - 3 * padding - verXPos);
+           posY = horYPos - padding - ((metric[i] - minY) / diffY) * (horYPos - 4 * padding) / 2;
 
            painter.setPen(defPen);
+           painter.drawLine(posX + 1, horYPos + 2, posX + 1, horYPos - 2); // segments on horizontal line
 
-           const int horYPos = sizeY - padding - graphicYOffset / 2;
-           const int verXPos = padding + graphicXOffset;
+           painter.rotate(-90); //Поворачивает систему координат по часовой стрелке
+           painter.drawText(-(sizeY - padding/2), posX + 5, QString::number(years[i], 'g', 6)); // текст под осью икс
+           painter.rotate(90);
 
-           painter.drawLine(verXPos, horYPos, sizeX - padding, horYPos); // horizontal line
-           painter.drawLine(sizeX - padding, horYPos, sizeX - padding - 5, horYPos - 3); // стрелочки
-           painter.drawLine(sizeX - padding, horYPos, sizeX - padding - 5, horYPos + 3);
-
-           painter.drawLine(verXPos, horYPos, verXPos, padding); // vertical line
-           painter.drawLine(verXPos, padding, verXPos - 3, padding + 5); // стрелочки
-           painter.drawLine(verXPos, padding, verXPos + 3, padding + 5);
-
-           int size = year.size();
-           double diffX = maxY - minX, // года
-                   diffY = maxX - minY;
-
-           double posX, posY;
-           for(int i = 0; i < size; i++)
+           if(metric[i] == min || metric[i] == max)
            {
-               posX = verXPos + 5 + ((year[i] - minX) / diffX) * (sizeX - 3 * padding - verXPos);
-               posY = horYPos - padding - ((OY[i] - minY) / diffY) * (horYPos - 4 * padding) / 2;
-
-               painter.setPen(defPen);
-               painter.drawLine(posX + 1, horYPos + 2, posX + 1, horYPos - 2); // segments on horizontal line
-
-               painter.rotate(-90); //Поворачивает систему координат по часовой стрелке
-               painter.drawText(-(sizeY - padding/2), posX + 5, QString::number(year[i], 'g', 6)); // текст под осью икс
-               painter.rotate(90);
-
-               if(OY[i] == min || OY[i] == max)
-               {
-                   painter.drawLine(verXPos - 2, posY, verXPos + 2, posY);
-                   painter.drawText(0, posY - 1, QString::number(OY[i], 'g', 4));
-                   painter.setPen(horPen);
-                   painter.drawLine(verXPos, posY, posX, posY);
-               }
-               painter.setPen(dotsPen);
-               painter.drawEllipse(posX, posY, 2, 2); // точки
+               painter.drawLine(verXPos - 2, posY, verXPos + 2, posY);
+               painter.drawText(0, posY - 1, QString::number(metric[i], 'g', 4));
+               painter.setPen(horPen);
+               painter.drawLine(verXPos, posY, posX, posY);
            }
+           painter.setPen(dotsPen);
+           painter.drawEllipse(posX, posY, 2, 2); // точки
+       }
 
-           posX = verXPos + 5 + ((maxY - minX) / diffX) * (sizeX - 3 * padding - verXPos);
-           posY = horYPos - padding - ((med - minY) / diffY) * (horYPos - 4 * padding) / 2;
+       posX = verXPos + 5 + ((maxY - minX) / diffX) * (sizeX - 3 * padding - verXPos);
+       posY = horYPos - padding - ((med - minY) / diffY) * (horYPos - 4 * padding) / 2;
 
-           painter.drawLine(verXPos - 2, posY, verXPos + 2, posY);
-           painter.drawText(0, posY - 1, QString::number(med, 'g', 4));
-           painter.setPen(horPen);
-           painter.drawLine(verXPos, posY, posX, posY);
-           painter.drawText(0, 50, Oy);
+       painter.drawLine(verXPos - 2, posY, verXPos + 2, posY);
+       painter.drawText(0, posY - 1, QString::number(med, 'g', 4));
+       painter.setPen(horPen);
+       painter.drawLine(verXPos, posY, posX, posY);
+       painter.drawText(0, 50, metric_name); // название строки
 
-           painter.end();
+       painter.end();
 
-           //ui->Grafic->setPicture(picture);
+       ui->graphic->setPicture(picture);
+
 }

@@ -165,7 +165,7 @@ void MainWindow::on_btn_metric_clicked(){
     }
     ui->label_result->setText(result_text);
 
-    QString col_name = headers.at(col_metric - 1);
+    QString col_name = headers.at(col_metric);
     draw_picture(years, arr, col_name, minimum, maximum, average);
 
 }
@@ -182,19 +182,19 @@ void MainWindow::draw_picture(vector<int> years, vector<double> metric, QString 
                graphicXOffset = 10;
 
        QPicture picture;
-       picture.setBoundingRect(QRect(QPoint(0, 0), QPoint(sizeX, sizeY))); //Устанавливает ограничивающий прямоугольник изображения на r (QRect &r): 1)QRect(int x, int y, int width, int height) 2)QRect(const QPoint &topLeft, const QSize &size) 3)QRect(const QPoint &topLeft, const QPoint &bottomRight)
+       picture.setBoundingRect(QRect(QPoint(0, 0), QPoint(sizeX, sizeY)));
        QPainter painter;
 
-       painter.begin(&picture); // paint in picture
+       painter.begin(&picture);
 
-       QPen dotsPen = painter.pen(); //The QPen class defines how a QPainter should draw lines and outlines of shapes.
-       dotsPen.setWidth(2); //толщина ручки
-       dotsPen.setColor(QColor(255, 0, 255)); //color
+       QPen dotsPen = painter.pen();
+       dotsPen.setWidth(2);
+       dotsPen.setColor(QColor(125, 30, 255));
 
-       QPen defPen = painter.pen(); //ручка для осей
+       QPen defPen = painter.pen();
        defPen.setWidth(2);
 
-       QPen horPen = painter.pen();//ручка для горизонтальных линий метрики
+       QPen horPen = painter.pen();
        horPen.setStyle(Qt::DotLine);
 
        painter.setPen(defPen);

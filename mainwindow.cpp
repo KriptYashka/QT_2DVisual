@@ -158,4 +158,88 @@ void MainWindow::on_btn_metric_clicked(){
         result_text = "Нет результатов. Проверьте название региона или выбранную колонку.";
     }
     ui->label_result->setText(result_text);
+
+
+
+}
+
+QPicture MainWindow::get_picture(double min, double max, double med){
+    vector<int> year;
+    double minY = min, maxX = max;
+
+           const int sizeX = 500,
+                   sizeY = 480,
+                   padding = 50,
+                   graphicYOffset = 30,
+                   graphicXOffset = 10;
+
+           QPicture picture;
+           picture.setBoundingRect(QRect(QPoint(0, 0), QPoint(sizeX, sizeY))); //Устанавливает ограничивающий прямоугольник изображения на r (QRect &r): 1)QRect(int x, int y, int width, int height) 2)QRect(const QPoint &topLeft, const QSize &size) 3)QRect(const QPoint &topLeft, const QPoint &bottomRight)
+           QPainter painter;
+
+           painter.begin(&picture); // paint in picture
+
+           QPen dotsPen = painter.pen(); //The QPen class defines how a QPainter should draw lines and outlines of shapes.
+           dotsPen.setWidth(2); //толщина ручки
+           dotsPen.setColor(QColor(255, 0, 255)); //color
+
+           QPen defPen = painter.pen(); //ручка для осей
+           defPen.setWidth(2);
+
+           QPen horPen = painter.pen();//ручка для горизонтальных линий метрики
+           horPen.setStyle(Qt::DotLine);
+
+           painter.setPen(defPen);
+
+           const int horYPos = sizeY - padding - graphicYOffset / 2;
+           const int verXPos = padding + graphicXOffset;
+
+           painter.drawLine(verXPos, horYPos, sizeX - padding, horYPos); // horizontal line
+           painter.drawLine(sizeX - padding, horYPos, sizeX - padding - 5, horYPos - 3); // стрелочки
+           painter.drawLine(sizeX - padding, horYPos, sizeX - padding - 5, horYPos + 3);
+
+           painter.drawLine(verXPos, horYPos, verXPos, padding); // vertical line
+           painter.drawLine(verXPos, padding, verXPos - 3, padding + 5); // стрелочки
+           painter.drawLine(verXPos, padding, verXPos + 3, padding + 5);
+
+           int size = year.size();
+           double diffX = maxY - minX, // года
+                   diffY = maxX - minY;
+
+           double posX, posY;
+           for(int i = 0; i < size; i++)
+           {
+               posX = verXPos + 5 + ((year[i] - minX) / diffX) * (sizeX - 3 * padding - verXPos);
+               posY = horYPos - padding - ((OY[i] - minY) / diffY) * (horYPos - 4 * padding) / 2;
+
+               painter.setPen(defPen);
+               painter.drawLine(posX + 1, horYPos + 2, posX + 1, horYPos - 2); // segments on horizontal line
+
+               painter.rotate(-90); //Поворачивает систему координат по часовой стрелке
+               painter.drawText(-(sizeY - padding/2), posX + 5, QString::number(year[i], 'g', 6)); // текст под осью икс
+               painter.rotate(90);
+
+               if(OY[i] == min || OY[i] == max)
+               {
+                   painter.drawLine(verXPos - 2, posY, verXPos + 2, posY);
+                   painter.drawText(0, posY - 1, QString::number(OY[i], 'g', 4));
+                   painter.setPen(horPen);
+                   painter.drawLine(verXPos, posY, posX, posY);
+               }
+               painter.setPen(dotsPen);
+               painter.drawEllipse(posX, posY, 2, 2); // точки
+           }
+
+           posX = verXPos + 5 + ((maxY - minX) / diffX) * (sizeX - 3 * padding - verXPos);
+           posY = horYPos - padding - ((med - minY) / diffY) * (horYPos - 4 * padding) / 2;
+
+           painter.drawLine(verXPos - 2, posY, verXPos + 2, posY);
+           painter.drawText(0, posY - 1, QString::number(med, 'g', 4));
+           painter.setPen(horPen);
+           painter.drawLine(verXPos, posY, posX, posY);
+           painter.drawText(0, 50, Oy);
+
+           painter.end();
+
+           //ui->Grafic->setPicture(picture);
 }

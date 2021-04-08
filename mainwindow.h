@@ -5,6 +5,7 @@
 #include <QStandardItemModel>
 #include <fstream>
 #include <QShortcut>
+#include <QPainter>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -24,6 +25,7 @@ private slots:
     void on_btn_loadfile_clicked();
     void on_btn_metric_clicked();
     void closeApp();
+    QPicture get_picture();
 
 private:
     Ui::MainWindow *ui;

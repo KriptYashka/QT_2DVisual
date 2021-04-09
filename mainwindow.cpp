@@ -11,6 +11,10 @@
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow){
     ui->setupUi(this);
 
+    QIcon winIcon("favicon.ico");
+    this->setWindowIcon(winIcon);
+    this->setWindowTitle("KriptYashka - 2D Visual");
+
     csvModel = new QStandardItemModel(this);
     csvModel->setColumnCount(7);
 
@@ -172,8 +176,8 @@ void MainWindow::on_btn_metric_clicked(){
 
 
 void MainWindow::draw_picture(vector<int> years, vector<double> metric, QString metric_name, double min, double max, double med){
-    double minY = min, maxX = max;
-    double minX = years.at(0), maxY = years.at(years.size()-1);
+    /* Отрисовывает график на основе вектора years и metric */
+    double min_year = years.at(0), max_year = years.at(years.size()-1);
 
        const int sizeX = 500,
                sizeY = 480,
@@ -211,14 +215,14 @@ void MainWindow::draw_picture(vector<int> years, vector<double> metric, QString 
        painter.drawLine(verXPos, padding, verXPos + 3, padding + 5);
 
        int size = years.size();
-       double diffX = maxY - minX, // года
-               diffY = maxX - minY;
+       double diffX = max_year - min_year,
+               diffY = max - min;
 
        double posX, posY;
        for(int i = 0; i < size; i++)
        {
-           posX = verXPos + 5 + ((years[i] - minX) / diffX) * (sizeX - 3 * padding - verXPos);
-           posY = horYPos - padding - ((metric[i] - minY) / diffY) * (horYPos - 4 * padding) / 2;
+           posX = verXPos + 5 + ((years[i] - min_year) / diffX) * (sizeX - 3 * padding - verXPos);
+           posY = horYPos - padding - ((metric[i] - min) / diffY) * (horYPos - 4 * padding) / 2;
 
            painter.setPen(defPen);
            painter.drawLine(posX + 1, horYPos + 2, posX + 1, horYPos - 2); // segments on horizontal line
@@ -238,8 +242,8 @@ void MainWindow::draw_picture(vector<int> years, vector<double> metric, QString 
            painter.drawEllipse(posX, posY, 2, 2); // точки
        }
 
-       posX = verXPos + 5 + ((maxY - minX) / diffX) * (sizeX - 3 * padding - verXPos);
-       posY = horYPos - padding - ((med - minY) / diffY) * (horYPos - 4 * padding) / 2;
+       posX = verXPos + 5 + ((max_year - min_year) / diffX) * (sizeX - 3 * padding - verXPos);
+       posY = horYPos - padding - ((med - min) / diffY) * (horYPos - 4 * padding) / 2;
 
        painter.drawLine(verXPos - 2, posY, verXPos + 2, posY);
        painter.drawText(0, posY - 1, QString::number(med, 'g', 4));

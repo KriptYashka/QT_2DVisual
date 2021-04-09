@@ -19,7 +19,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    QStandardItemModel *csvModel;
+    QStandardItemModel *csv_model;
 
 private slots:
     void on_btn_load_clicked();

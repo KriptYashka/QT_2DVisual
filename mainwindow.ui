@@ -123,9 +123,9 @@
    <widget class="QLabel" name="label_result">
     <property name="geometry">
      <rect>
-      <x>40</x>
+      <x>30</x>
       <y>290</y>
-      <width>211</width>
+      <width>231</width>
       <height>111</height>
      </rect>
     </property>
@@ -146,10 +146,13 @@
     <property name="geometry">
      <rect>
       <x>280</x>
-      <y>120</y>
-      <width>601</width>
-      <height>281</height>
+      <y>100</y>
+      <width>711</width>
+      <height>301</height>
      </rect>
+    </property>
+    <property name="editTriggers">
+     <set>QAbstractItemView::NoEditTriggers</set>
     </property>
    </widget>
    <widget class="QPushButton" name="btn_loadfile">
@@ -174,8 +177,22 @@
       <height>491</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>72</pointsize>
+     </font>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Panel</enum>
+    </property>
     <property name="text">
      <string>График</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+    <property name="margin">
+     <number>20</number>
     </property>
    </widget>
   </widget>

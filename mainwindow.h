@@ -25,13 +25,9 @@ private slots:
     void on_btn_load_clicked();
     void on_btn_loadfile_clicked();
     void on_btn_metric_clicked();
-    void closeApp();
     void draw_picture(vector<int> years, vector<double> metric, QString metric_name, double min, double max, double med);
 
 private:
     Ui::MainWindow *ui;
-    QShortcut *keyEnter;
-    QShortcut *keyEsc;
-
 };
 #endif // MAINWINDOW_H

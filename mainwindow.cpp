@@ -11,34 +11,20 @@
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow){
     ui->setupUi(this);
 
-    QIcon winIcon("favicon.ico");
-    this->setWindowIcon(winIcon);
-    this->setWindowTitle("KriptYashka - 2D Visual");
-
-    csv_model = new QStandardItemModel(this);
+    this->setWindowTitle("Maria Timakova");
+    csv_model = new QStandardItemModel;
     csv_model->setColumnCount(7);
-
-    keyEnter = new QShortcut(this);
-    keyEnter->setKey(Qt::Key_Enter);
-    connect(keyEnter, SIGNAL(activated()), this, SLOT(on_btn_metric_clicked()));
-
-    keyEsc = new QShortcut(this);
-    keyEsc->setKey(Qt::Key_Escape);
-    connect(keyEsc, SIGNAL(activated()), this, SLOT(closeApp()));
 }
 
 MainWindow::~MainWindow(){
+    delete csv_model;
     delete ui;
 }
 
 /* Глобальные переменные */
 QStandardItemModel *general_model = new QStandardItemModel;
 QStringList headers;
-vector<vector<string>> csv_read;
-
-void MainWindow::closeApp(){
-    QApplication::exit();
-}
+vector<vector<string>> data_csv;
 
 QList<QStandardItem *> get_row(QStandardItemModel* model, int row){
     /* Возвращает QList из ячеек таблицы */
@@ -64,30 +50,30 @@ void model_cpy(QStandardItemModel* from, QStandardItemModel* to){
 void MainWindow::on_btn_loadfile_clicked(){
     /* Загрузка файла */
     QString filePath = QFileDialog::getOpenFileName(this, tr("Open file"));
-    if (is_csv_file(filePath.toStdString())){
-        csv_read = read_csv_file(filePath.toStdString());
-    }
+    Request* request = new Request;
+    request->operation = Operations::READ;
+    request->path = filePath.toStdString();
+    Response* response = execute(request);
+    data_csv = response->csv;
 
-    if (csv_read.size() == 0 || !is_csv_file(filePath.toStdString())){
+    if (data_csv.size() == 0 || !response->done){
         ui->label_title->setText("Нет таблицы");
         ui->label_result->setText("Невозможно открыть файл");
         ui->line_region->setText("");
         ui->line_col->setText("");
     } else {
-        // Устанавливаем CSV модель
-
         csv_model->clear();
-        csv_model->setColumnCount(csv_read.at(0).size());
+        csv_model->setColumnCount(data_csv.at(0).size());
         // Устанавливаем заголовки
         headers.clear();
-        for (string str : csv_read.at(0)) {
+        for (string str : data_csv.at(0)) {
           headers.push_back(QString::fromStdString(str));
         }
         csv_model->setHorizontalHeaderLabels(headers);
 
         bool is_header = true;
-        for (vector<string> item_list : csv_read) {
-            if (is_header){ // Пропускаем заголовки
+        for (vector<string> item_list : data_csv) {
+            if (is_header){
                 is_header = false;
                 continue;
             }
@@ -101,6 +87,8 @@ void MainWindow::on_btn_loadfile_clicked(){
         model_cpy(csv_model, general_model);
         ui->label_title->setText(filePath);
     }
+    delete request;
+    delete response;
 }
 
 
@@ -109,7 +97,6 @@ void MainWindow::on_btn_load_clicked(){
 }
 
 int check_column(QString col){
-    /* Проверяет колонку на целочисленный формат */
     bool flag = true;
     int res = col.toInt(&flag);
     if (flag)
@@ -155,13 +142,31 @@ void MainWindow::on_btn_metric_clicked(){
     for (int row = 0; row < general_model->rowCount(); ++row){
         QString str = general_model->item(row, col_metric)->text();
         QString str_year = general_model->item(row, 0)->text();
-        if (is_normal_metric(str.toStdString()) && is_normal_metric(str_year.toStdString())){
+        Request* request = new Request;
+        request->text = str.toStdString();
+        request->operation = Operations::IS_METRIC;
+        Response* response_1 = execute(request);
+        request->text = str_year.toStdString();
+        Response* response_2 = execute(request);
+        bool flag1 = response_1->flag;
+        bool flag2 = response_2->flag;
+        if (flag1 && flag2){
             arr.push_back(general_model->item(row, col_metric)->text().toDouble());
             years.push_back(general_model->item(row, 0)->text().toInt());
         }
+        delete request;
+        delete response_1;
+        delete response_2;
     }
-
-    calc_metric(arr, col_metric, &minimum, &maximum, &average);
+    Request* request = new Request;
+    request->arr = arr;
+    request->operation = Operations::METRIC;
+    Response* response = execute(request);
+    if (response->done){
+        minimum = response->min;
+        maximum = response->max;
+        average = response->avg;
+    }
     QString result_text = "Минимум: "+ QString::number(minimum) +"\nМаксимум: "+ QString::number(maximum)
             +"\nМедиана: "+ QString::number(average);
     if (arr.size() == 0){
@@ -175,9 +180,9 @@ void MainWindow::on_btn_metric_clicked(){
     QString col_name = headers.at(col_metric);
     draw_picture(years, arr, col_name, minimum, maximum, average);
 
+    delete request;
+    delete response;
 }
- /* Глобальные переменные для отрисовки */
-
 
 void draw_dot(vector<QPen> pens, QPainter &painter, double met, int year, double max, double min, vector<double> positions){
     double posX = positions.at(0),
@@ -189,13 +194,12 @@ void draw_dot(vector<QPen> pens, QPainter &painter, double met, int year, double
     painter.setPen(pens.at(0));
     painter.drawLine(posX + 1, horYPos + 2, posX + 1, horYPos - 2);
 
-    painter.rotate(-90); //Поворачивает систему координат по часовой стрелке
+    painter.rotate(-90); // Поворачивает систему координат по часовой стрелке
     painter.drawText(-(sizeY - padding/2), posX + 5, QString::number(year, 'g', 6)); // текст под осью икс
     painter.rotate(90);
 
     /* Для особых значений */
-    if (met == min || met == max)
-    {
+    if (met == min || met == max){
         painter.drawLine(verXPos - 2, posY, verXPos + 2, posY);
         painter.drawText(0, posY - 1, QString::number(met, 'g', 4));
         painter.setPen(pens.at(1));
@@ -204,9 +208,9 @@ void draw_dot(vector<QPen> pens, QPainter &painter, double met, int year, double
 
     double color_max = max - min;
     double delta = met - min;
-    int colorR = (delta / color_max) * 255;
+    int colorB = (delta / color_max) * 255;
 
-    pens.at(2).setColor(QColor(colorR, 30, 200));
+    pens.at(2).setColor(QColor(200 + ((int)posX % 50), 30, colorB));
 
     painter.setPen(pens.at(2));
     painter.drawEllipse(posX, posY, 3, 3); // точки

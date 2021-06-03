@@ -6,9 +6,21 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1020</width>
-    <height>957</height>
+    <width>1446</width>
+    <height>594</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>1446</width>
+    <height>594</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>1446</width>
+    <height>594</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
@@ -17,27 +29,27 @@
    <widget class="QPushButton" name="btn_metric">
     <property name="geometry">
      <rect>
-      <x>750</x>
+      <x>610</x>
       <y>30</y>
       <width>131</width>
       <height>41</height>
      </rect>
     </property>
     <property name="text">
-     <string>Calculate Metric</string>
+     <string>Метрика</string>
     </property>
    </widget>
    <widget class="QPushButton" name="btn_load">
     <property name="geometry">
      <rect>
-      <x>610</x>
+      <x>470</x>
       <y>30</y>
       <width>121</width>
       <height>41</height>
      </rect>
     </property>
     <property name="text">
-     <string>Load Data</string>
+     <string>Подгрузить данные</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_title">
@@ -68,63 +80,11 @@
      <number>10</number>
     </property>
    </widget>
-   <widget class="QLineEdit" name="line_region">
-    <property name="geometry">
-     <rect>
-      <x>130</x>
-      <y>210</y>
-      <width>113</width>
-      <height>24</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Altai Krai</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_region">
-    <property name="geometry">
-     <rect>
-      <x>50</x>
-      <y>210</y>
-      <width>71</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Регион:</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_col">
-    <property name="geometry">
-     <rect>
-      <x>50</x>
-      <y>250</y>
-      <width>71</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Колонка:</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="line_col">
-    <property name="geometry">
-     <rect>
-      <x>130</x>
-      <y>250</y>
-      <width>113</width>
-      <height>24</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>4</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="label_result">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>290</y>
+      <x>920</x>
+      <y>30</y>
       <width>231</width>
       <height>111</height>
      </rect>
@@ -145,8 +105,8 @@
    <widget class="QTableView" name="table_metric">
     <property name="geometry">
      <rect>
-      <x>280</x>
-      <y>100</y>
+      <x>700</x>
+      <y>160</y>
       <width>711</width>
       <height>301</height>
      </rect>
@@ -171,10 +131,10 @@
    <widget class="QLabel" name="graphic">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>410</y>
-      <width>961</width>
-      <height>491</height>
+      <x>10</x>
+      <y>120</y>
+      <width>671</width>
+      <height>421</height>
      </rect>
     </property>
     <property name="font">
@@ -195,13 +155,56 @@
      <number>20</number>
     </property>
    </widget>
+   <widget class="QWidget" name="formLayoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>750</x>
+      <y>30</y>
+      <width>160</width>
+      <height>111</height>
+     </rect>
+    </property>
+    <layout class="QFormLayout" name="formLayout">
+     <property name="horizontalSpacing">
+      <number>8</number>
+     </property>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_col">
+       <property name="text">
+        <string>Колонка:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_region">
+       <property name="text">
+        <string>Регион:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="line_region">
+       <property name="text">
+        <string>Altai Krai</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="line_col">
+       <property name="text">
+        <string>4</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1020</width>
+     <width>1446</width>
      <height>20</height>
     </rect>
    </property>
